@@ -8,10 +8,10 @@
 #include <getopt.h>
 #include <BlynkApiLinux.h>
 #include <BlynkSocket.h>
+#include "mq.h"
 
 static BlynkTransportSocket _blynkTransport;
 BlynkSocket Blynk(_blynkTransport);
-
 #include <BlynkWidgets.h>
 
 #define MQTT_DEFAULT_DOMAIN "127.0.0.1"
@@ -93,14 +93,21 @@ void parse_options(int argc, char* argv[], struct state_data *st)
 
 int main(int argc, char* argv[])
 {
-	struct state_data state = { };
+	struct state_data state = {};
 	parse_options(argc, argv, &state);
+        
+        mosqpp::lib_init();
+        BlynkMQTT blynkMQTT;
+        blynkMQTT.connect(state.mqtt.server);
 
 	Blynk.begin(state.blynk.token, state.blynk.server, state.blynk.port);
 
 	while (true) {
 		Blynk.run();
+                int rc = blynkMQTT.loop(100);
+                printf("mq loop returned: %s\n", mosqpp::strerror(rc));
 	}
 
+        mosqpp::lib_cleanup();
 	return 0;
 }
