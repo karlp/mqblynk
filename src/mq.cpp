@@ -10,7 +10,7 @@ void BlynkMQTT::on_connect(int rc) {
     printf("susbcribe returned: %d: %s\n", rc, mosqpp::strerror(rc));
 }
 
-void BlynkMQTT::on_message(mosquitto_message* message) {
+void BlynkMQTT::on_message(const struct mosquitto_message* message) {
     printf("Got message on topic: %s\n", message->topic);
 }
 
