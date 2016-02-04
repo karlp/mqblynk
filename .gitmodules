@@ -1,0 +1,3 @@
+[submodule "blynk"]
+	path = blynk
+	url = https://github.com/blynkkk/blynk-library.git
