@@ -3,10 +3,11 @@
 
 #include "mq.h"
 
-BlynkMQTT::BlynkMQTT() : mosquittopp()
+BlynkMQTT::BlynkMQTT(BlynkSocket &blynk) : mosquittopp(), _blynk(blynk)
 {
 	mosqpp::lib_init();
 }
+
 
 BlynkMQTT::~BlynkMQTT()
 {
@@ -23,6 +24,9 @@ void BlynkMQTT::on_connect(int rc)
 void BlynkMQTT::on_message(const struct mosquitto_message* message)
 {
 	printf("Got message on topic: %s\n", message->topic);
+	int x = atoi((const char*)message->payload);
+	printf("blynking: %d\n", x);
+	this->_blynk.virtualWrite(2, x);
 }
 
 void BlynkMQTT::on_log(int level, const char* str)

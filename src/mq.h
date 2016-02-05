@@ -8,10 +8,12 @@
 #pragma once
 
 #include <mosquittopp.h>
+#include <BlynkApiLinux.h>
+#include <BlynkSocket.h>
 
 class BlynkMQTT : public mosqpp::mosquittopp {
 public:
-	BlynkMQTT();
+	BlynkMQTT(BlynkSocket &blynk);
 	~BlynkMQTT();
 
 	virtual void on_message(const struct mosquitto_message* message);
@@ -19,4 +21,6 @@ public:
 	virtual void on_connect(int rc);
 
 	virtual void on_log(int level, const char* str);
+private:
+	BlynkSocket &_blynk;
 };

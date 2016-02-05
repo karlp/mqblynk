@@ -3,8 +3,8 @@ BLYNK_HOME=../blynk
 CC = g++
 CFLAGS  = -I $(BLYNK_HOME) -I $(BLYNK_HOME)/linux -DLINUX
 LDFLAGS = -lrt -lpthread
-CFLAGS += -ggdb3 -O2
-CFLAGS += -Wall -Weffc++ -Wextra
+CFLAGS += -std=c++11 -ggdb3 -O2
+CFLAGS += -Wall -Wextra
 
 CFLAGS += -I /home/karlp/.local/include
 LDFLAGS+= -L/home/karlp/.local/lib

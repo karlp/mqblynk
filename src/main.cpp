@@ -36,6 +36,12 @@ BLYNK_WRITE(V1)
 	BLYNK_LOG("Got a value: %s", param[0].asStr());
 }
 
+BLYNK_READ(V2)
+{
+	// how do we use these in classes?!
+	BLYNK_LOG("someone asked for v2?");
+}
+
 static
 void parse_options(int argc, char* argv[], struct state_data *st)
 {
@@ -92,18 +98,20 @@ void parse_options(int argc, char* argv[], struct state_data *st)
 
 int main(int argc, char* argv[])
 {
-	struct state_data state = {};
+	struct state_data state = { };
 	parse_options(argc, argv, &state);
 
-	BlynkMQTT blynkMQTT;
-	blynkMQTT.connect(state.mqtt.server);
+	BlynkMQTT *blynkMQTT = new BlynkMQTT(Blynk);
+	blynkMQTT->connect(state.mqtt.server);
 
 	Blynk.begin(state.blynk.token, state.blynk.server, state.blynk.port);
 
+	int i = 0;
 	while (true) {
 		Blynk.run();
-		int rc = blynkMQTT.loop(100);
-		printf("mq loop returned: %s\n", mosqpp::strerror(rc));
+		int rc = blynkMQTT->loop(100);
+		printf("mq loop %d returned: %s\n", i, mosqpp::strerror(rc));
+		i++;
 	}
 
 	return 0;
