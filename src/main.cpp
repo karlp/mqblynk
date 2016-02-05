@@ -31,15 +31,16 @@ struct state_data {
 	struct mqtt_data mqtt;
 };
 
-BLYNK_WRITE(V1)
+static BlynkMQTT *blynkMQTT;
+
+BLYNK_WRITE_DEFAULT()
 {
-	BLYNK_LOG("Got a value: %s", param[0].asStr());
+	blynkMQTT->write(request, param);
 }
 
-BLYNK_READ(V2)
+BLYNK_READ_DEFAULT()
 {
-	// how do we use these in classes?!
-	BLYNK_LOG("someone asked for v2?");
+	blynkMQTT->read(request);
 }
 
 static
@@ -98,20 +99,28 @@ void parse_options(int argc, char* argv[], struct state_data *st)
 
 int main(int argc, char* argv[])
 {
-	struct state_data state = { };
+	struct state_data state = {};
 	parse_options(argc, argv, &state);
 
-	BlynkMQTT *blynkMQTT = new BlynkMQTT(Blynk);
+	blynkMQTT = new BlynkMQTT(Blynk);
 	blynkMQTT->connect(state.mqtt.server);
+
+	blynkMQTT->add_out_map(OutputMap("blynk/output/json/4", 4, "lcd"));
+	blynkMQTT->add_out_map(OutputMap("blynk/output/json/2", 2, "int"));
+	blynkMQTT->add_out_map(OutputMap("blynk/output/json/6", 6, "int"));
+
+	blynkMQTT->add_in_map(InputMap(3, "blynk/input/json/slider"));
+	blynkMQTT->add_in_map(InputMap(0, "blynk/input/json/button/0"));
+	blynkMQTT->add_in_map(InputMap(1, "blynk/input/json/button/1"));
 
 	Blynk.begin(state.blynk.token, state.blynk.server, state.blynk.port);
 
-	int i = 0;
 	while (true) {
 		Blynk.run();
 		int rc = blynkMQTT->loop(100);
-		printf("mq loop %d returned: %s\n", i, mosqpp::strerror(rc));
-		i++;
+		if (rc) {
+			printf("um, remember to fix this? :%d -> %s\n", rc, mosqpp::strerror(rc));
+		}
 	}
 
 	return 0;
