@@ -25,7 +25,7 @@ EXECUTABLE=mqblink
 all: $(SOURCES) $(EXECUTABLE)
 
 clean:
-	-rm $(OBJECTS) $(EXECUTABLE)
+	-rm -f $(OBJECTS) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS) 
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
