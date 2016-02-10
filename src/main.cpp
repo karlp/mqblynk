@@ -105,13 +105,13 @@ int main(int argc, char* argv[])
 	blynkMQTT = new BlynkMQTT(Blynk);
 	blynkMQTT->connect(state.mqtt.server);
 
-	blynkMQTT->add_out_map(OutputMap("blynk/output/json/4", 4, "lcd"));
-	blynkMQTT->add_out_map(OutputMap("blynk/output/json/2", 2, "int"));
-	blynkMQTT->add_out_map(OutputMap("blynk/output/json/6", 6, "int"));
+	blynkMQTT->add_out_map(OutputMap("blynk/output/json/4", 4, "@[\"ipv4-address\"][0].address"));
+	//blynkMQTT->add_out_map(OutputMap("blynk/output/json/2", 2, "int"));
+	//blynkMQTT->add_out_map(OutputMap("blynk/output/json/6", 6, "int"));
 
-	blynkMQTT->add_in_map(InputMap(3, "blynk/input/json/slider"));
-	blynkMQTT->add_in_map(InputMap(0, "blynk/input/json/button/0"));
-	blynkMQTT->add_in_map(InputMap(1, "blynk/input/json/button/1"));
+	//blynkMQTT->add_in_map(InputMap(3, "blynk/input/json/slider"));
+	//blynkMQTT->add_in_map(InputMap(0, "blynk/input/json/button/0"));
+	//blynkMQTT->add_in_map(InputMap(1, "blynk/input/json/button/1"));
 
 	Blynk.begin(state.blynk.token, state.blynk.server, state.blynk.port);
 

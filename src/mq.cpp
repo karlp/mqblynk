@@ -2,6 +2,9 @@
 #include <iostream>
 #include <stdio.h>
 
+#include <json-c/json.h>
+#include <libubox/list.h>
+#include "jsonpath.h"
 #include "mq.h"
 
 BlynkMQTT::BlynkMQTT(BlynkSocket &blynk) : mosquittopp(), _blynk(blynk)
@@ -24,6 +27,15 @@ void BlynkMQTT::on_connect(int rc)
 void BlynkMQTT::on_message(const struct mosquitto_message* message)
 {
 	printf("Got message on topic: %s\n", message->topic);
+	
+	enum json_tokener_error js_tok_error;
+	struct json_object *js = json_tokener_parse_verbose((const char*)message->payload, &js_tok_error);
+
+	if (js_tok_error != json_tokener_success) {
+		printf("Invalid json, reason: %s, actual data: %s\n", json_tokener_error_desc(js_tok_error), (const char*)message->payload);
+		return;
+	}
+	
 	/* Check config for topic mapping->[pin:jsonpath]->filter */
 	// for now, just some sorta gross hacks on raw messages.
 	for (auto map : this->outputMaps) {
@@ -35,6 +47,25 @@ void BlynkMQTT::on_message(const struct mosquitto_message* message)
 			break;
 		}
 		if (matches) {
+			printf("Topic matches\n");
+			struct list_head matches;
+			struct match_item *item, *tmp;
+			INIT_LIST_HEAD(&matches);
+
+			if (jsonpath_filter(js, (char *)map.magic, &matches)) {
+				printf("Got a match with: %s\n", map.magic);
+				// iterate matches and dump, then free...
+//				list_for_each_entry_safe(item, tmp, &matches, list) {
+//					printf("Match was: %s\n", json_object_to_json_string(item->jsobj));
+//					free;
+//				}
+				list_for_each_entry(item, &matches, list) {
+					printf("Match was: %s\n", json_object_to_json_string(item->jsobj));
+				}
+			} else {
+				printf("jsonpath match failed!\n");
+			}
+
 			if (strcmp(map.magic, "int") == 0) {
 				int x = atoi((const char*) message->payload);
 				printf("blynking int %d -> %d\n", map.pin, x);
