@@ -6,19 +6,14 @@
 #include "jsonpath.h"
 #include "mq.h"
 
-/* NO! this doesn't post directly to blynk? this instead just processes and returns values to be processed elsewhere?*/
 static void mq_blynk_js_cb(struct json_object *js, void *priv)
 {
-	printf("entered callback!\n");
 	OutputMap *map = (OutputMap*)priv;
 	switch (json_object_get_type(js)) {
 	case json_type_double:
-		printf("virtualwrite %d of double: %f\n", map->pin, json_object_get_double(js));
 		map->blynk->virtualWrite(map->pin, json_object_get_double(js));
 		break;
 	case json_type_int:
-		/* fuck, I need another object wrapper? or put the "blynk" object into the map? */
-		printf("virtualwrite %d of int: %d\n", map->pin, json_object_get_int(js));
 		map->blynk->virtualWrite(map->pin, json_object_get_int(js));
 		break;
 	default:
@@ -40,9 +35,7 @@ BlynkMQTT::~BlynkMQTT()
 
 void BlynkMQTT::on_connect(int rc)
 {
-	printf("got connected!: %d\n", rc);
 	rc = subscribe(NULL, "mqblynk/command/#", 0);
-	printf("susbcribe returned: %d: %s\n", rc, mosqpp::strerror(rc));
 	for (auto e : this->outputMaps) {
 		subscribe(NULL, e->topic);
 	}
@@ -50,7 +43,6 @@ void BlynkMQTT::on_connect(int rc)
 
 void BlynkMQTT::on_message(const struct mosquitto_message* message)
 {
-	printf("Got message on topic: %s\n", message->topic);
 	const char *payloads = (const char *)message->payload;
 	bool matches;
 	mosqpp::topic_matches_sub("mqblynk/command/#", message->topic, &matches);
@@ -72,10 +64,7 @@ void BlynkMQTT::on_message(const struct mosquitto_message* message)
 		return;
 	}
 	
-	/* Check config for topic mapping->[pin:jsonpath]->filter */
-	// for now, just some sorta gross hacks on raw messages.
 	for (auto map : this->outputMaps) {
-		std::cout << "Considering topic: " << map->topic << std::endl;
 		bool matches;
 		int rc = mosqpp::topic_matches_sub(map->topic, message->topic, &matches);
 		if (rc != MOSQ_ERR_SUCCESS) {
@@ -83,7 +72,6 @@ void BlynkMQTT::on_message(const struct mosquitto_message* message)
 			break;
 		}
 		if (matches) {
-			printf("Topic matches\n");
 			jp_match(map->_jp->path, js, mq_blynk_js_cb, map);
 			
 
@@ -116,12 +104,12 @@ void BlynkMQTT::on_message(const struct mosquitto_message* message)
 
 void BlynkMQTT::on_log(int level, const char* str)
 {
-	printf("mqlog: level: %d: %s\n", level, str);
+	//printf("mqlog: level: %d: %s\n", level, str);
 }
 
 void BlynkMQTT::read(const BlynkReq& request)
 {
-	printf("<<read req for pin %d\n", request.pin);
+	//printf("<<read req for pin %d\n", request.pin);
 }
 
 void BlynkMQTT::write(const BlynkReq& request, const BlynkParam& param)
