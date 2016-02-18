@@ -6,33 +6,14 @@
  */
 
 #pragma once
+#include <memory>
 #include <list>
 #include <mosquittopp.h>
 #include <BlynkApiLinux.h>
 #include <BlynkSocket.h>
 
-class OutputMap {
-public:
+#include "TopicMaps.h"
 
-	OutputMap(const char *topic, int pin, const char *magic = NULL) :
-	topic(topic), pin(pin), magic(magic)
-	{
-	};
-	const char *topic;
-	int pin;
-	const char *magic;
-};
-
-class InputMap {
-public:
-
-	InputMap(int pin, const char *topic) :
-	pin(pin), topic(topic)
-	{
-	};
-	int pin;
-	const char *topic;
-};
 
 class BlynkMQTT : public mosqpp::mosquittopp {
 public:
@@ -48,11 +29,16 @@ public:
 	virtual void read(const BlynkReq& request);
 	virtual void write(const BlynkReq& request, const BlynkParam &param);
 
-	virtual void add_out_map(OutputMap map);
+//	virtual void add_out_map(std::unique_ptr<OutputMap> map);
+	virtual void add_out_map(OutputMap *map);
 	virtual void add_in_map(InputMap map);
+	void magic(void);
+	bool should_run(void);
+	void clean(void);
 private:
 	BlynkSocket &_blynk;
-	std::list<OutputMap> outputMaps;
+	std::list<OutputMap*> outputMaps;
 	std::list<InputMap> inputMaps;
+	bool _should_run;
 
 };

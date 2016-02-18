@@ -24,6 +24,7 @@ SOURCES=main.cpp \
 	$(BLYNK_HOME)/utility/BlynkHandlers.cpp
 
 SOURCES+=mq.cpp
+SOURCES+=TopicMaps.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=mqblink

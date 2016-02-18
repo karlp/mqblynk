@@ -97,6 +97,15 @@ void parse_options(int argc, char* argv[], struct state_data *st)
 	}
 }
 
+class config_entry {
+public:
+	config_entry(const char *topic, const char *jsonpath, int pin) :
+	topic(topic), jsonpath(jsonpath), pin(pin) {};
+	const char *topic;
+	const char *jsonpath;
+	int pin;
+};
+
 int main(int argc, char* argv[])
 {
 	struct state_data state = {};
@@ -104,24 +113,53 @@ int main(int argc, char* argv[])
 
 	blynkMQTT = new BlynkMQTT(Blynk);
 	blynkMQTT->connect(state.mqtt.server);
+	
+	std::list<config_entry> configs;
+	configs.push_back(config_entry("status/local/json/device/0004A384911A",
+		"@.phases[0].pf", 1));
+	configs.push_back(config_entry("status/local/json/device/0004A384911A",
+		"@.frequency", 2));
+	configs.push_back(config_entry("status/local/json/device/0004A384911A",
+		"@.phases[0].voltage", 3));
+	configs.push_back(config_entry("status/local/json/device/0004A384911A",
+		"@.phases[0].current", 4));
+	configs.push_back(config_entry(
+		"status/local/json/device/6D88A77439A3",
+		"@.senml.e[@.n='temp'].v",
+		0));
+	
+	for (auto e : configs) {
+		printf("processing %s -> %d\n", e.jsonpath, e.pin);
+		struct jp_state *jps = jp_parse(e.jsonpath);
+		if (jps) {
+			auto om = new OutputMap(jps, e.topic, e.pin);
+			//blynkMQTT->add_out_map(std::unique_ptr<OutputMap>{om});
+			blynkMQTT->add_out_map(om);
+		} else {
+			printf("failed to parse jsonpath: %s ignoring: %s\n", e.jsonpath, jp_error_to_string(jps->error_code));
+		}
+	}
+	blynkMQTT->magic();
 
-	blynkMQTT->add_out_map(OutputMap("blynk/output/json/4", 4, "@[\"ipv4-address\"][0].address"));
+	//blynkMQTT->add_out_map("status/local/json/device/0004A384911A", 4, "@.frequency");
 	//blynkMQTT->add_out_map(OutputMap("blynk/output/json/2", 2, "int"));
 	//blynkMQTT->add_out_map(OutputMap("blynk/output/json/6", 6, "int"));
 
-	//blynkMQTT->add_in_map(InputMap(3, "blynk/input/json/slider"));
+	blynkMQTT->add_in_map(InputMap(3, "blynk/input/json/slider"));
 	//blynkMQTT->add_in_map(InputMap(0, "blynk/input/json/button/0"));
 	//blynkMQTT->add_in_map(InputMap(1, "blynk/input/json/button/1"));
 
 	Blynk.begin(state.blynk.token, state.blynk.server, state.blynk.port);
 
-	while (true) {
+	while (blynkMQTT->should_run()) {
 		Blynk.run();
 		int rc = blynkMQTT->loop(100);
 		if (rc) {
 			printf("um, remember to fix this? :%d -> %s\n", rc, mosqpp::strerror(rc));
 		}
 	}
+	// doesn't seem to help with valgrind...
+	// blynkMQTT->clean();
 
 	return 0;
 }
