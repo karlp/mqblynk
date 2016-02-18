@@ -35,10 +35,15 @@ BlynkMQTT::~BlynkMQTT()
 
 void BlynkMQTT::on_connect(int rc)
 {
-	rc = subscribe(NULL, "mqblynk/command/#", 0);
+	printf("MQTT (re)connected %d %s\n", rc, mosqpp::strerror(rc));
+	subscribe(NULL, "mqblynk/command/#", 0);
 	for (auto e : this->outputMaps) {
 		subscribe(NULL, e->topic);
 	}
+}
+
+void BlynkMQTT::on_disconnect(int rc) {
+	printf("MQTT lost connection: %d %s\n", rc, mosqpp::strerror(rc));
 }
 
 void BlynkMQTT::on_message(const struct mosquitto_message* message)

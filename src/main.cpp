@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 		0));
 	
 	for (auto e : configs) {
-		printf("processing %s -> %d\n", e.jsonpath, e.pin);
+		printf("Registering topic: %s -> jsonpath: %s -> virtualpin: %d\n", e.topic, e.jsonpath, e.pin);
 		struct jp_state *jps = jp_parse(e.jsonpath);
 		if (jps) {
 			auto om = new OutputMap(jps, e.topic, e.pin);
@@ -139,7 +139,6 @@ int main(int argc, char* argv[])
 			printf("failed to parse jsonpath: %s ignoring: %s\n", e.jsonpath, jp_error_to_string(jps->error_code));
 		}
 	}
-	blynkMQTT->magic();
 
 	//blynkMQTT->add_out_map("status/local/json/device/0004A384911A", 4, "@.frequency");
 	//blynkMQTT->add_out_map(OutputMap("blynk/output/json/2", 2, "int"));
@@ -151,13 +150,13 @@ int main(int argc, char* argv[])
 
 	Blynk.begin(state.blynk.token, state.blynk.server, state.blynk.port);
 
+	blynkMQTT->loop_start();
 	while (blynkMQTT->should_run()) {
 		Blynk.run();
-		int rc = blynkMQTT->loop(100);
-		if (rc) {
-			printf("um, remember to fix this? :%d -> %s\n", rc, mosqpp::strerror(rc));
-		}
+		usleep(100 * 1000);
 	}
+	blynkMQTT->disconnect();
+	blynkMQTT->loop_stop();
 	// doesn't seem to help with valgrind...
 	// blynkMQTT->clean();
 

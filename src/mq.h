@@ -23,6 +23,7 @@ public:
 	virtual void on_message(const struct mosquitto_message* message);
 
 	virtual void on_connect(int rc);
+	virtual void on_disconnect(int rc);
 
 	virtual void on_log(int level, const char* str);
 
