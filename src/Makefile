@@ -12,8 +12,8 @@ CFLAGS += -I /home/karlp/.local/include
 LDFLAGS+= -L/home/karlp/.local/lib
 LDFLAGS+= -lmosquittopp
 
-CFLAGS+=-I /home/karlp/src/jsonpath
-LDFLAGS+=-L /home/karlp/src/jsonpath -ljsonpath
+CFLAGS+=-I ../jsonpath
+LDFLAGS+=-L ../jsonpath -ljsonpath
 
 # Disable some warnings
 CFLAGS += -Wno-variadic-macros -Wno-unused-parameter -Wno-vla
