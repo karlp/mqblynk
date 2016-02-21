@@ -1,9 +1,8 @@
 BLYNK_HOME=../blynk
 
-CC = g++
 CFLAGS  = -I $(BLYNK_HOME) -I $(BLYNK_HOME)/linux -DLINUX
-LDFLAGS = -lrt -lpthread -lubox
-CFLAGS += -std=c++11 -ggdb3 -O2
+LDFLAGS = -lrt -lpthread
+CFLAGS += -std=c++11 -ggdb3 -O0
 CFLAGS += -Wall -Wextra
 
 CFLAGS += $(shell pkg-config --cflags json-c)
@@ -35,7 +34,7 @@ clean:
 	-rm -f $(OBJECTS) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS) 
-	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
 
 .cpp.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CFLAGS) -c $< -o $@
