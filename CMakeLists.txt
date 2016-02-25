@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8.12)
-include(ExternalProject)
 project(mqblynk)
 
+# Offer the user the choice of overriding the installation directories
+set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
+
+include(ExternalProject)
 # you fucking what? having to pass cmake args to make this do anything sane?
 # INSTALL_DIR is ignored.
 # BUILD_IN_SOURCE is to work around bugs in jsonpath's cmake :(
@@ -51,3 +54,6 @@ INCLUDE_DIRECTORIES(
 
 add_executable(mqblynk src/main.cpp src/mq.cpp src/TopicMaps.cpp ${BLYNK_SOURCE})
 target_link_libraries(mqblynk jsonpath ${JSONC_LIBRARIES} ${MOSQUITTOPP_LIBRARIES})
+
+INSTALL(TARGETS mqblynk RUNTIME DESTINATION ${INSTALL_BIN_DIR})
+
