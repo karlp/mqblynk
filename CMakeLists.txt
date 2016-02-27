@@ -10,7 +10,7 @@ include(ExternalProject)
 # BUILD_IN_SOURCE is to work around bugs in jsonpath's cmake :(
 ExternalProject_Add(jsonpath_ext
 	INSTALL_DIR blahfix
-	SOURCE_DIR jsonpath
+	SOURCE_DIR ${CMAKE_SOURCE_DIR}/jsonpath
 	BUILD_IN_SOURCE 1
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/contrib
 )
