@@ -40,7 +40,7 @@ find_path(MOSQUITTOPP_INCLUDE_DIRS NAMES mosquittopp.h
 )
 
 INCLUDE(FindPkgConfig)
-pkg_search_module(JSONC required json-c json)
+pkg_search_module(JSONC REQUIRED json-c json)
 
 set(BLYNK_SOURCE "blynk/linux/BlynkDebug.cpp"
 "blynk/utility/BlynkHandlers.cpp")
