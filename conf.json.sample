@@ -1,0 +1,28 @@
+{
+  "blynk": {
+	"token":  "your_token",
+	"server_": "optional.example.org",
+	"port_": 8442,
+	"comment": "server and port are both optional, leave off _ to make them real"
+  },
+  "mqtt": {
+	"server_": "optional.example.org",
+	"port_": 1883,
+	"comment": "server/port both optional, default to localhost:1883",
+	"optional security maybe shit": "yeah"
+  },
+  "comment": "pins are all virtual, all three fields are required, else ignored",
+  "output": [
+    { "pin": 0, "topic": "status/local/json/device/6D88A77439A3",
+	"jsonpath": "@.senml.e[@.n='temp'].v"},
+    { "pin": 1, "topic": "status/local/json/device/0004A384911A",
+	"jsonpath": "@.phases[0].pf"},
+    { "pin": 2, "topic": "status/local/json/device/0004A384911A",
+	"jsonpath": "@.frequency"},
+    { "pin": 3, "topic": "status/local/json/device/0004A384911A",
+	"jsonpath": "@.phases[0].voltage"},
+    { "pin": 4, "topic": "status/local/json/device/0004A384911A",
+	"jsonpath": "@.phases[0].current"}
+  ],
+  "input": "um, not done yet..."
+}

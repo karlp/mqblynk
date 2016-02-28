@@ -17,6 +17,7 @@ public:
 	OutputMap(struct jp_state *jp, const char * topic, int pin, BlynkSocket *blynk = NULL) : 
 	_jp(jp), topic(topic), pin(pin), blynk(blynk) {};
 	~OutputMap();
+	void dump(void);
 	struct jp_state *_jp;
 	const char *topic;
 	int pin;

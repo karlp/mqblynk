@@ -5,6 +5,7 @@
 #include <json-c/json.h>
 #include "jsonpath.h"
 #include "mq.h"
+#include "AppConfig.h"
 
 static void mq_blynk_js_cb(struct json_object *js, void *priv)
 {
@@ -22,7 +23,7 @@ static void mq_blynk_js_cb(struct json_object *js, void *priv)
 }
 
 
-BlynkMQTT::BlynkMQTT(BlynkSocket &blynk) : mosquittopp(), _blynk(blynk)
+BlynkMQTT::BlynkMQTT(BlynkSocket &blynk, AppConfig &conf) : mosquittopp(), _blynk(blynk), _conf(conf)
 {
 	this->_should_run = true;
 	mosqpp::lib_init();
@@ -37,7 +38,7 @@ void BlynkMQTT::on_connect(int rc)
 {
 	printf("MQTT (re)connected %d %s\n", rc, mosqpp::strerror(rc));
 	subscribe(NULL, "mqblynk/command/#", 0);
-	for (auto e : this->outputMaps) {
+	for (auto e : this->_conf.outputs) {
 		subscribe(NULL, e->topic);
 	}
 }
@@ -69,7 +70,7 @@ void BlynkMQTT::on_message(const struct mosquitto_message* message)
 		return;
 	}
 	
-	for (auto map : this->outputMaps) {
+	for (auto map : this->_conf.outputs) {
 		bool matches;
 		int rc = mosqpp::topic_matches_sub(map->topic, message->topic, &matches);
 		if (rc != MOSQ_ERR_SUCCESS) {
@@ -77,7 +78,8 @@ void BlynkMQTT::on_message(const struct mosquitto_message* message)
 			break;
 		}
 		if (matches) {
-			jp_match(map->_jp->path, js, mq_blynk_js_cb, map);
+			map->blynk = &this->_blynk;
+			jp_match(map->_jp->path, js, mq_blynk_js_cb, &map);
 			
 
 
@@ -136,11 +138,11 @@ void BlynkMQTT::write(const BlynkReq& request, const BlynkParam& param)
 //	std::cout << "added map for topic: " << map.get()->topic << " map size now: " << this->outputMaps.size() << std::endl;
 //}
 
-void BlynkMQTT::add_out_map(OutputMap *map)
-{
-	map->blynk = &_blynk;
-	this->outputMaps.push_back(map);
-}
+//void BlynkMQTT::add_out_map(OutputMap *map)
+//{
+//	map->blynk = &_blynk;
+//	this->outputMaps.push_back(map);
+//}
 
 void BlynkMQTT::add_in_map(InputMap map)
 {
@@ -149,10 +151,10 @@ void BlynkMQTT::add_in_map(InputMap map)
 
 void BlynkMQTT::magic()
 {
-	printf("whee\n");
-	for (auto e : this->outputMaps) {
-		printf("%s -> %d\n", e->topic, e->pin);
-	}
+//	printf("whee\n");
+//	for (auto e : this->outputMaps) {
+//		printf("%s -> %d\n", e->topic, e->pin);
+//	}
 }
 
 bool BlynkMQTT::should_run()
@@ -162,7 +164,7 @@ bool BlynkMQTT::should_run()
 
 void BlynkMQTT::clean()
 {
-	for (auto e : this->outputMaps) {
-		delete e;
-	}
+//	for (auto e : this->outputMaps) {
+//		delete e;
+//	}
 }

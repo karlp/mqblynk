@@ -52,7 +52,7 @@ INCLUDE_DIRECTORIES(
 	${MOSQUITTOPP_INCLUDE_DIRS}
 )
 
-add_executable(mqblynk src/main.cpp src/mq.cpp src/TopicMaps.cpp ${BLYNK_SOURCE})
+add_executable(mqblynk src/main.cpp src/AppConfig.cpp src/mq.cpp src/TopicMaps.cpp ${BLYNK_SOURCE})
 target_link_libraries(mqblynk jsonpath ${JSONC_LIBRARIES} ${MOSQUITTOPP_LIBRARIES})
 
 INSTALL(TARGETS mqblynk RUNTIME DESTINATION ${INSTALL_BIN_DIR})

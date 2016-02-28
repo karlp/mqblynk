@@ -13,11 +13,12 @@
 #include <BlynkSocket.h>
 
 #include "TopicMaps.h"
+#include "AppConfig.h"
 
 
 class BlynkMQTT : public mosqpp::mosquittopp {
 public:
-	BlynkMQTT(BlynkSocket &blynk);
+	BlynkMQTT(BlynkSocket &blynk, AppConfig &conf);
 	~BlynkMQTT();
 
 	virtual void on_message(const struct mosquitto_message* message);
@@ -31,13 +32,14 @@ public:
 	virtual void write(const BlynkReq& request, const BlynkParam &param);
 
 //	virtual void add_out_map(std::unique_ptr<OutputMap> map);
-	virtual void add_out_map(OutputMap *map);
+//	virtual void add_out_map(OutputMap *map);
 	virtual void add_in_map(InputMap map);
 	void magic(void);
 	bool should_run(void);
 	void clean(void);
 private:
 	BlynkSocket &_blynk;
+	AppConfig &_conf;
 	std::list<OutputMap*> outputMaps;
 	std::list<InputMap> inputMaps;
 	bool _should_run;

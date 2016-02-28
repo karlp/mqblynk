@@ -6,9 +6,12 @@
 //#define BLYNK_DEBUG
 #define BLYNK_PRINT stdout
 #include <getopt.h>
+#include <json.h>
 #include <BlynkApiLinux.h>
 #include <BlynkSocket.h>
 #include "mq.h"
+#include "AppConfig.h"
+
 
 static BlynkTransportSocket _blynkTransport;
 BlynkSocket Blynk(_blynkTransport);
@@ -44,111 +47,75 @@ BLYNK_READ_DEFAULT()
 }
 
 static
-void parse_options(int argc, char* argv[], struct state_data *st)
+void parse_options(int argc, char* argv[], AppConfig &conf)
 {
 	static struct option long_options[] = {
-		{"token", required_argument, 0, 't'},
-		{"blynk", required_argument, 0, 'b'},
-		{"mqtt", required_argument, 0, 'm'},
-		{"port", required_argument, 0, 'p'},
+		{"help", no_argument, 0, 'h'},
+		{"config", required_argument, 0, 'c'},
 		{0, 0, 0, 0}
 	};
-
-	// Set default values
-	st->blynk.token = NULL;
-	st->blynk.server = BLYNK_DEFAULT_DOMAIN;
-	st->blynk.port = TOSTRING(BLYNK_DEFAULT_PORT);
-	st->mqtt.server = MQTT_DEFAULT_DOMAIN;
-
+	
+	// Set default values TODO - make a member function?
+	conf.blynk_server = BLYNK_DEFAULT_DOMAIN;
+	conf.blynk_port = TOSTRING(BLYNK_DEFAULT_PORT);
+	conf.mqtt_port = 1883;
+	conf.mqtt_server = MQTT_DEFAULT_DOMAIN;
+	
 	const char* usage =
 		"Usage: %s [options]\n"
 		"\n"
 		"Options:\n"
-		"  -t auth, --token=auth     Your auth token\n"
-		"  -b addr, --blynk=addr     Blynk Server name (default: " BLYNK_DEFAULT_DOMAIN ")\n"
-		"  -p num,  --port=num       Blynk Server port (default: " TOSTRING(BLYNK_DEFAULT_PORT) ")\n"
-		"  -m addr, --mqtt=addr      MQTT Server name (default: " MQTT_DEFAULT_DOMAIN ")\n"
+		"  -h, --help  Print this help\n"
+		"  -c config.json, --config=configfile.json JSON Configuration file.\n"
+		"\n"
+		"Defaults:\n"
+		"  Unless specified in the config file, the following defaults are used:"
+		"  blynk.server: " BLYNK_DEFAULT_DOMAIN "\n"
+		"  blynk.port" TOSTRING(BLYNK_DEFAULT_PORT) "\n"
+		"  mqtt.server: " MQTT_DEFAULT_DOMAIN "\n"
+		"  outputs: empty list"
 		"\n";
 
 	int rez;
-	while (-1 != (rez = getopt_long(argc, argv, "b:m:p:t:", long_options, NULL))) {
+	while (-1 != (rez = getopt_long(argc, argv, "hc:", long_options, NULL))) {
 		switch (rez) {
-		case 'b':
-			st->blynk.server = optarg;
+		case 'c':
+			if (conf.parse(optarg)) {
+				printf("Config successfully loaded from: %s\n", optarg);
+			} else {
+				printf("Failed to parse config from: %s: %s\n", optarg, conf.failure());
+			}
 			break;
-		case 'm':
-			st->mqtt.server = optarg;
-			break;
-		case 'p':
-			st->blynk.port = optarg;
-			break;
-		case 't':
-			st->blynk.token = optarg;
-			break;
-		default: printf(usage, argv[0]);
-			exit(1);
+		case 'h':
+		default:
+			printf(usage, argv[0]);
+			exit(0);
 		};
 	};
+	// Allowed to load extra settings here.
 
 	// Check mandatory options
-	if (!st->blynk.token) {
-		printf(usage, argv[0]);
+	if (!conf.is_valid()) {
+		printf("Final configuraton is invalid: %s\n", conf.failure());
 		exit(1);
 	}
+	conf.dump();
 }
 
-class config_entry {
-public:
-	config_entry(const char *topic, const char *jsonpath, int pin) :
-	topic(topic), jsonpath(jsonpath), pin(pin) {};
-	const char *topic;
-	const char *jsonpath;
-	int pin;
-};
 
 int main(int argc, char* argv[])
 {
-	struct state_data state = {};
-	parse_options(argc, argv, &state);
+	AppConfig conf;
+	parse_options(argc, argv, conf);
 
-	blynkMQTT = new BlynkMQTT(Blynk);
-	blynkMQTT->connect(state.mqtt.server);
+	blynkMQTT = new BlynkMQTT(Blynk, conf);
+	blynkMQTT->connect(conf.mqtt_server, conf.mqtt_port);
 	
-	std::list<config_entry> configs;
-	configs.push_back(config_entry("status/local/json/device/0004A384911A",
-		"@.phases[0].pf", 1));
-	configs.push_back(config_entry("status/local/json/device/0004A384911A",
-		"@.frequency", 2));
-	configs.push_back(config_entry("status/local/json/device/0004A384911A",
-		"@.phases[0].voltage", 3));
-	configs.push_back(config_entry("status/local/json/device/0004A384911A",
-		"@.phases[0].current", 4));
-	configs.push_back(config_entry(
-		"status/local/json/device/6D88A77439A3",
-		"@.senml.e[@.n='temp'].v",
-		0));
-	
-	for (auto e : configs) {
-		printf("Registering topic: %s -> jsonpath: %s -> virtualpin: %d\n", e.topic, e.jsonpath, e.pin);
-		struct jp_state *jps = jp_parse(e.jsonpath);
-		if (jps) {
-			auto om = new OutputMap(jps, e.topic, e.pin);
-			//blynkMQTT->add_out_map(std::unique_ptr<OutputMap>{om});
-			blynkMQTT->add_out_map(om);
-		} else {
-			printf("failed to parse jsonpath: %s ignoring: %s\n", e.jsonpath, jp_error_to_string(jps->error_code));
-		}
-	}
-
-	//blynkMQTT->add_out_map("status/local/json/device/0004A384911A", 4, "@.frequency");
-	//blynkMQTT->add_out_map(OutputMap("blynk/output/json/2", 2, "int"));
-	//blynkMQTT->add_out_map(OutputMap("blynk/output/json/6", 6, "int"));
-
 	blynkMQTT->add_in_map(InputMap(3, "blynk/input/json/slider"));
 	//blynkMQTT->add_in_map(InputMap(0, "blynk/input/json/button/0"));
 	//blynkMQTT->add_in_map(InputMap(1, "blynk/input/json/button/1"));
 
-	Blynk.begin(state.blynk.token, state.blynk.server, state.blynk.port);
+	Blynk.begin(conf.blynk_token, conf.blynk_server, conf.blynk_port);
 
 	blynkMQTT->loop_start();
 	while (blynkMQTT->should_run()) {
