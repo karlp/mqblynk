@@ -44,10 +44,9 @@ static void handle_mqtt(json_object *js, AppConfig *conf) {
 }
 
 static void handle_output_e(json_object *js, AppConfig *conf) {
-	struct jp_state *jps;
-	const char *topic;
-	int pin;
-	int found = 0;
+	struct jp_state *jps = NULL;
+	const char *topic = NULL;
+	int pin = -1;
 	json_object_object_foreach(js, key, val) {
 		if (strcmp(key, "jsonpath") == 0) {
 			const char *s = json_object_get_string(val);
@@ -57,18 +56,18 @@ static void handle_output_e(json_object *js, AppConfig *conf) {
 					s, jp_error_to_string(jps->error_code));
 				return;
 			}
-			found++;
 		}
 		if (strcmp(key, "topic") == 0) {
 			topic = json_object_get_string(val);
-			found++;
 		}
 		if (strcmp(key, "pin") == 0) {
-			pin = json_object_get_int(val);
-			found++;
+			int pinval = json_object_get_int(val);
+			if (pinval && errno != EINVAL) {
+				pin = pinval;
+			}
 		}
 	}
-	if (found == 3) {
+	if (jps && topic && pin >= 0) {
 		auto om = new OutputMap(jps, topic, pin);
 		conf->outputs.push_back(om);
 	}
