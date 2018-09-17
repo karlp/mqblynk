@@ -80,30 +80,6 @@ void BlynkMQTT::on_message(const struct mosquitto_message* message)
 		if (matches) {
 			map->blynk = &this->_blynk;
 			jp_match(map->_jp->path, js, mq_blynk_js_cb, map);
-			
-
-
-//			if (strcmp(map.magic, "int") == 0) {
-//				int x = atoi((const char*) message->payload);
-//				printf("blynking int %d -> %d\n", map.pin, x);
-//				this->_blynk.virtualWrite(map.pin, x);
-//			} else if (strcmp(map.magic, "str") == 0) {
-//				const char *x = (const char *) message->payload;
-//				printf("blynking str %d -> %s\n", map.pin, x);
-//				this->_blynk.virtualWrite(map.pin, x);
-//			} else if (strcmp(map.magic, "lcd") == 0) {
-//				const char *x = (const char *) message->payload;
-//				printf("blynking lcd %d -> %s\n", map.pin, x);
-//				char mem[64] = "";
-//				BlynkParam cmd(mem, 0, sizeof(mem));
-//				cmd.add("p");
-//				cmd.add(0);
-//				cmd.add(0);
-//				cmd.add(x);
-//				this->_blynk.virtualWrite(map.pin, cmd);
-//			} else {
-//				printf("unknown magic mapping: %s\n", map.magic);
-//			}
 		}
 	}
 	json_object_put(js);
@@ -137,29 +113,9 @@ void BlynkMQTT::write(const BlynkReq& request, const BlynkParam& param)
 	}
 }
 
-//void BlynkMQTT::add_out_map(std::unique_ptr<OutputMap> map)
-//{
-//	this->outputMaps.push_back(map.get());
-//	std::cout << "added map for topic: " << map.get()->topic << " map size now: " << this->outputMaps.size() << std::endl;
-//}
-
-//void BlynkMQTT::add_out_map(OutputMap *map)
-//{
-//	map->blynk = &_blynk;
-//	this->outputMaps.push_back(map);
-//}
-
 void BlynkMQTT::add_in_map(InputMap map)
 {
 	this->inputMaps.push_back(map);
-}
-
-void BlynkMQTT::magic()
-{
-//	printf("whee\n");
-//	for (auto e : this->outputMaps) {
-//		printf("%s -> %d\n", e->topic, e->pin);
-//	}
 }
 
 bool BlynkMQTT::should_run()

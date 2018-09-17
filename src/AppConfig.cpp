@@ -71,15 +71,6 @@ static void handle_output_e(json_object *js, AppConfig *conf) {
 		auto om = new OutputMap(jps, topic, pin);
 		conf->outputs.push_back(om);
 	}
-//		struct jp_state *jps = jp_parse(e.jsonpath);
-//		if (jps) {
-//			auto om = new OutputMap(jps, e.topic, e.pin);
-//			//blynkMQTT->add_out_map(std::unique_ptr<OutputMap>{om});
-//			blynkMQTT->add_out_map(om);
-//		} else {
-//			printf("failed to parse jsonpath: %s ignoring: %s\n", e.jsonpath, jp_error_to_string(jps->error_code));
-//		}
-	
 }
 
 static void handle_output(json_object *js, AppConfig *conf) {
@@ -111,7 +102,6 @@ bool AppConfig::parse(const char* jsonfile) {
 		return false;
 	}
 	
-	//json_object *blynk_js = json_object_
 	json_object_object_foreach(js, key, val) {
 		printf("considering top level key: %s\n", key);
 		if (strcmp(key, "blynk") == 0) {
