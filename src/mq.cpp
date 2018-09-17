@@ -79,7 +79,7 @@ void BlynkMQTT::on_message(const struct mosquitto_message* message)
 		}
 		if (matches) {
 			map->blynk = &this->_blynk;
-			jp_match(map->_jp->path, js, mq_blynk_js_cb, &map);
+			jp_match(map->_jp->path, js, mq_blynk_js_cb, map);
 			
 
 
