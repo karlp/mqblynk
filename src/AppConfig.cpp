@@ -73,6 +73,36 @@ static void handle_output_e(json_object *js, AppConfig *conf) {
 	}
 }
 
+static void handle_input_e(json_object *js, AppConfig *conf) {
+	const char *topic = NULL;
+	int pin = -1;
+	json_object_object_foreach(js, key, val) {
+		if (strcmp(key, "topic") == 0) {
+			topic = strdup(json_object_get_string(val));
+		}
+		if (strcmp(key, "pin") == 0) {
+			int pinval = json_object_get_int(val);
+			if (pinval >= 0 && errno != EINVAL) {
+				pin = pinval;
+			}
+		}
+	}
+	if (topic && pin >= 0) {
+		auto m = new InputMap(pin, topic);
+		conf->inputs.push_back(m);
+	}
+}
+
+static void handle_input(json_object *js, AppConfig *conf) {
+	if (json_object_get_type(js) != json_type_array) {
+		return;
+	}
+	for (int i = 0; i < json_object_array_length(js); i++) {
+		json_object *elem = json_object_array_get_idx(js, i);
+		handle_input_e(elem, conf);
+	}
+}
+
 static void handle_output(json_object *js, AppConfig *conf) {
 	if (json_object_get_type(js) != json_type_array) {
 		return;
@@ -113,6 +143,9 @@ bool AppConfig::parse(const char* jsonfile) {
 		if (strcmp(key, "output") == 0) {
 			handle_output(val, this);
 		}
+		if (strcmp(key, "input") == 0) {
+			handle_input(val, this);
+		}
 	}
 
 	json_object_put(js);
@@ -145,9 +178,13 @@ void AppConfig::dump()
 		<< "Server: " << this->blynk_server << "Port:" << this->blynk_port << std::endl
 		<< "\tMQTT settings:" << std::endl
 		<< "Server: " << this->mqtt_server << "Port: " << this->mqtt_port << std::endl
-		<< "\tOutput Maps: " << this->outputs.size() << " entries" << std::endl;
+		<< "\tOutput Maps: " << this->outputs.size() << " entries" << std::endl
+		<< "\tInput Maps " << this->inputs.size() << " entries" << std::endl;
 	// TODO Now, delegate to the maps themselves...
 	for (auto om : this->outputs) {
+		om->dump();
+	}
+	for (auto om : this->inputs) {
 		om->dump();
 	}
 }

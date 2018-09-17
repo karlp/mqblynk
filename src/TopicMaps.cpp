@@ -18,3 +18,15 @@ void OutputMap::dump()
 		<< "Topic: " << this->topic << std::endl;
 }
 
+InputMap::~InputMap()
+{
+	std::cout << "InputMap destructor called" << std::endl;
+	if (this->topic) {
+		free((void*)this->topic);
+	}
+}
+
+void InputMap::dump()
+{
+	std::cout << "Pin: " << this->pin << " Topic: " << this->topic << std::endl;
+}

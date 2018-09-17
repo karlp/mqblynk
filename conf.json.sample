@@ -24,5 +24,8 @@
     { "pin": 4, "topic": "status/local/json/device/0004A384911A",
 	"jsonpath": "@.phases[0].current"}
   ],
-  "input": "um, not done yet..."
+  "input": [
+    { "pin": 0, "topic": "demo/output/blynk/mypin4" },
+    { "pin": 3, "topic": "demo/some/other/topic" }
+  ]
 }

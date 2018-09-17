@@ -104,18 +104,13 @@ void BlynkMQTT::write(const BlynkReq& request, const BlynkParam& param)
 {
 	printf(">> write on pin %d, with: %s\n", request.pin, param.asStr());
 	/* Check map of vars to topics and write back */
-	for (auto map : this->inputMaps) {
-		if (map.pin == request.pin) {
-			printf("pin %d matched, publishing to %s\n", request.pin, map.topic);
-			publish(NULL, map.topic, strlen(param.asStr()), param.asStr(), 0, false);
+	for (auto map : this->_conf.inputs) {
+		if (map->pin == request.pin) {
+			printf("pin %d matched, publishing to %s\n", request.pin, map->topic);
+			publish(NULL, map->topic, strlen(param.asStr()), param.asStr(), 0, false);
 			break;
 		}
 	}
-}
-
-void BlynkMQTT::add_in_map(InputMap map)
-{
-	this->inputMaps.push_back(map);
 }
 
 bool BlynkMQTT::should_run()

@@ -31,16 +31,11 @@ public:
 	virtual void read(const BlynkReq& request);
 	virtual void write(const BlynkReq& request, const BlynkParam &param);
 
-//	virtual void add_out_map(std::unique_ptr<OutputMap> map);
-//	virtual void add_out_map(OutputMap *map);
-	virtual void add_in_map(InputMap map);
-	void magic(void);
 	bool should_run(void);
 	void clean(void);
 private:
 	BlynkSocket &_blynk;
 	AppConfig &_conf;
-	std::list<InputMap> inputMaps;
 	bool _should_run;
 
 };

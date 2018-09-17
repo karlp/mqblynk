@@ -28,9 +28,9 @@ class InputMap {
 public:
 
 	InputMap(int pin, const char *topic) :
-	pin(pin), topic(topic)
-	{
-	};
+            pin(pin), topic(topic) {};
+	~InputMap();
+	void dump(void);
 	int pin;
 	const char *topic;
 };

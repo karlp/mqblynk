@@ -1,13 +1,9 @@
+Linking MQTT Topics with Blynk.
 
-aim:
-jsonpath config file, selecting from a mqtt topic, posting as blynk variables
+For the device -> blynk direction, you can configure MQTT topics, with jsonpath
+to select the variable within a message to publish to which virtual pin.
 
-maybe: (probably)
-blynk variables back to mqtt topics.  
+For the blynk-> device direction, you simply list maps of blynk virtual
+pins and mqtt topics.  The raw value from blynk will be published to that topic
 
-
-actual currently:
-hardcoded topics:pins:jsonpath output maps.
-
-inputs might still work, haven't checked.
-
+_not_ a very good example of c++, but very functional for demos.

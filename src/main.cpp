@@ -111,10 +111,6 @@ int main(int argc, char* argv[])
 	blynkMQTT = new BlynkMQTT(Blynk, conf);
 	blynkMQTT->connect(conf.mqtt_server, conf.mqtt_port);
 	
-	blynkMQTT->add_in_map(InputMap(3, "blynk/input/json/slider"));
-	//blynkMQTT->add_in_map(InputMap(0, "blynk/input/json/button/0"));
-	//blynkMQTT->add_in_map(InputMap(1, "blynk/input/json/button/1"));
-
 	Blynk.begin(conf.blynk_token, conf.blynk_server, conf.blynk_port);
 
 	blynkMQTT->loop_start();
