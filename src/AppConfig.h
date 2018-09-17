@@ -47,7 +47,7 @@ public:
 	std::list<OutputMap*> outputs; // may need pointers?
 	const char *blynk_token;
 	const char *blynk_server;
-	const char *blynk_port;
+	uint16_t blynk_port;
 	const char *mqtt_server;
 	int mqtt_port;
 private:

@@ -57,7 +57,7 @@ void parse_options(int argc, char* argv[], AppConfig &conf)
 	
 	// Set default values TODO - make a member function?
 	conf.blynk_server = BLYNK_DEFAULT_DOMAIN;
-	conf.blynk_port = TOSTRING(BLYNK_DEFAULT_PORT);
+	conf.blynk_port = BLYNK_DEFAULT_PORT;
 	conf.mqtt_port = 1883;
 	conf.mqtt_server = MQTT_DEFAULT_DOMAIN;
 	
@@ -69,9 +69,9 @@ void parse_options(int argc, char* argv[], AppConfig &conf)
 		"  -c config.json, --config=configfile.json JSON Configuration file.\n"
 		"\n"
 		"Defaults:\n"
-		"  Unless specified in the config file, the following defaults are used:"
+		"  Unless specified in the config file, the following defaults are used:\n"
 		"  blynk.server: " BLYNK_DEFAULT_DOMAIN "\n"
-		"  blynk.port" TOSTRING(BLYNK_DEFAULT_PORT) "\n"
+		"  blynk.port: " BLYNK_TOSTRING(BLYNK_DEFAULT_PORT) "\n"
 		"  mqtt.server: " MQTT_DEFAULT_DOMAIN "\n"
 		"  outputs: empty list"
 		"\n";

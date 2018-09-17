@@ -21,9 +21,11 @@ static void handle_blynk(json_object *js, AppConfig *conf) {
 		if (strcmp(key, "server") == 0) {
 			conf->blynk_server = strdup(x);
 		}
-		// TODO -handle being int or string!
 		if (strcmp(key, "port") == 0) {
-			conf->blynk_port = strdup(x);
+			int port = json_object_get_int(val);
+			if (port && errno != EINVAL) {
+				conf->blynk_port = port;
+			}
 		}
 	}	
 }
