@@ -40,7 +40,6 @@ public:
 private:
 	BlynkSocket &_blynk;
 	AppConfig &_conf;
-	std::list<OutputMap*> outputMaps;
 	std::list<InputMap> inputMaps;
 	bool _should_run;
 
