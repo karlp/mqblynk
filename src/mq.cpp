@@ -111,12 +111,17 @@ void BlynkMQTT::on_message(const struct mosquitto_message* message)
 
 void BlynkMQTT::on_log(int level, const char* str)
 {
-	//printf("mqlog: level: %d: %s\n", level, str);
+#ifdef DEBUG_MQTT
+	printf("mqlog: level: %d: %s\n", level, str);
+#else
+	(void) level;
+	(void) str;
+#endif
 }
 
 void BlynkMQTT::read(const BlynkReq& request)
 {
-	//printf("<<read req for pin %d\n", request.pin);
+	printf("<<read req for pin %d\n", request.pin);
 }
 
 void BlynkMQTT::write(const BlynkReq& request, const BlynkParam& param)
