@@ -169,7 +169,7 @@ bool BlynkMQTT::should_run()
 
 void BlynkMQTT::clean()
 {
-//	for (auto e : this->outputMaps) {
-//		delete e;
-//	}
+	for (auto e : this->_conf.outputs) {
+		delete e;
+	}
 }

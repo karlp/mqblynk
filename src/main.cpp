@@ -124,8 +124,7 @@ int main(int argc, char* argv[])
 	}
 	blynkMQTT->disconnect();
 	blynkMQTT->loop_stop();
-	// doesn't seem to help with valgrind...
-	// blynkMQTT->clean();
+	blynkMQTT->clean();
 
 	return 0;
 }

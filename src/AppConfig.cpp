@@ -58,7 +58,7 @@ static void handle_output_e(json_object *js, AppConfig *conf) {
 			}
 		}
 		if (strcmp(key, "topic") == 0) {
-			topic = json_object_get_string(val);
+			topic = strdup(json_object_get_string(val));
 		}
 		if (strcmp(key, "pin") == 0) {
 			int pinval = json_object_get_int(val);
@@ -124,7 +124,8 @@ bool AppConfig::parse(const char* jsonfile) {
 			handle_output(val, this);
 		}
 	}
-	
+
+	json_object_put(js);
 	this->_valid = true;
 	return true;
 }

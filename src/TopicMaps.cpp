@@ -7,6 +7,9 @@ OutputMap::~OutputMap()
 	if (this->_jp) {
 		jp_free(this->_jp);
 	}
+	if (this->topic) {
+		free((void*)this->topic);
+	}
 }
 
 void OutputMap::dump()
